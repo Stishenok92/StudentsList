@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Text;
 
 namespace StudentsListLibrary
 {
@@ -10,6 +11,7 @@ namespace StudentsListLibrary
         private const int MIN_SIZE_NAME = 1;
         private const int MIN_MARK = 0;
         private const int MAX_MARK = 10;
+        private const int NUMBER_OF_ROUND_DIGIT = 2;
 
         private static int GetInt(string msg)
         {
@@ -50,7 +52,7 @@ namespace StudentsListLibrary
             return size;
         }
 
-        private static string InitName(string msg)
+        private static string GetName(string msg)
         {
             string name = GetString(msg);
 
@@ -62,7 +64,7 @@ namespace StudentsListLibrary
             return name;
         }
 
-        private static int InitMark(string msg)
+        private static int GetMark(string msg)
         {
             int mark = GetInt(msg);
 
@@ -80,7 +82,7 @@ namespace StudentsListLibrary
 
             for (int i = 0; i < temp.Length; i++)
             {
-                temp[i] = InitName("[" + (i + 1) + "] " + msg);
+                temp[i] = GetName("[" + (i + 1) + "] " + msg);
             }
 
             return temp;
@@ -92,7 +94,7 @@ namespace StudentsListLibrary
 
             for (int i = 0; i < temp.Length; i++)
             {
-                temp[i] = InitMark("[" + (i + 1) + "] " + msg);
+                temp[i] = GetMark("[" + (i + 1) + "] " + msg);
             }
 
             return temp;
@@ -157,12 +159,14 @@ namespace StudentsListLibrary
 
         private static double CalculateAveragePerformance(int[] marks)
         {
-            return Math.Round((marks.Sum() * 1.0 / marks.Length), 2);
+            return Math.Round((marks.Sum() * 1.0 / marks.Length), NUMBER_OF_ROUND_DIGIT);
         }
 
         private static void Sort(ref string[] students, ref int[] marks)
         {
-            while (true)
+            bool flag = true;
+
+            while (flag)
             {
                 int choose = GetInt("\nOperation:\n"
                                     + "1. Print by name (ascending)\n"
@@ -175,20 +179,24 @@ namespace StudentsListLibrary
                 {
                     case 1:
                         Array.Sort(students, marks);
-                        return;
+                        flag = false;
+                        break;
                     case 2:
                         Array.Sort(students, marks);
                         Array.Reverse(students);
                         Array.Reverse(marks);
-                        return;
+                        flag = false;
+                        break;
                     case 3:
                         Array.Sort(marks, students);
-                        return;
+                        flag = false;
+                        break;
                     case 4:
                         Array.Sort(marks, students);
                         Array.Reverse(marks);
                         Array.Reverse(students);
-                        return;
+                        flag = false;
+                        break;
                     default:
                         Console.WriteLine("\nPlease enter correct operation number!");
                         break;
@@ -198,7 +206,9 @@ namespace StudentsListLibrary
 
         public static void Interface(string[] students, int[] marks)
         {
-            while (true)
+            bool flag = true;
+
+            while (flag)
             {
                 int choose = GetInt("\nOperation:\n"
                                     + "1. Print students with max mark\n"
@@ -211,19 +221,24 @@ namespace StudentsListLibrary
                 switch (choose)
                 {
                     case 0:
-                        return;
+                        flag = false;
+                        break;
                     case 1:
                         PrintStudentsWithMark(students, marks, MAX_MARK);
+                        flag = false;
                         break;
                     case 2:
                         PrintStudentsWithMark(students, marks, MIN_MARK);
+                        flag = false;
                         break;
                     case 3:
                         Console.WriteLine("Average performance students: " + CalculateAveragePerformance(marks));
+                        flag = false;
                         break;
                     case 4:
-                        int mark = InitMark("\nEnter parameter mark: ");
+                        int mark = GetMark("\nEnter parameter mark: ");
                         PrintStudentsWithParameters(students, marks, mark);
+                        flag = false;
                         break;
                     default:
                         Console.WriteLine("\nPlease enter correct operation number!");
@@ -232,4 +247,4 @@ namespace StudentsListLibrary
             }
         }
     }
-} 
+}
