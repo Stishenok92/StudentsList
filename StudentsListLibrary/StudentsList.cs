@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
@@ -7,11 +8,23 @@ namespace StudentsListLibrary
 {
     public class StudentsList
     {
+        private class Reverser : IComparer
+        {
+            int IComparer.Compare(Object x, Object y)
+            {
+                return ((new CaseInsensitiveComparer()).Compare(y, x));
+            }
+        }
+
         private const int MIN_SIZE_GROUP = 1;
         private const int MIN_SIZE_NAME = 1;
         private const int MIN_MARK = 0;
         private const int MAX_MARK = 10;
         private const int NUMBER_OF_ROUND_DIGIT = 2;
+
+        private const string MSG_ERROR_CORRECT_OPERATION = "Please enter correct operation number";
+        private const string MSG_NO_FOUND_STUDENTS = "No students found";
+        private const string MSG_LIST_HEADER = "Students and marks";
 
         private static int GetInt(string msg)
         {
@@ -112,7 +125,7 @@ namespace StudentsListLibrary
                 throw new ValidationException();
             }
 
-            Console.WriteLine("\nStudents and marks: ");
+            Console.WriteLine("\n" + MSG_LIST_HEADER + ": ");
             bool flag = false;
 
             for (int i = 0; i < marks.Length; i++)
@@ -126,25 +139,25 @@ namespace StudentsListLibrary
 
             if (flag == false)
             {
-                Console.WriteLine("No students found!");
+                Console.WriteLine(MSG_NO_FOUND_STUDENTS);
             }
         }
 
-        private static void PrintStudentsWithParameters(string[] students, int[] marks, int mark)
+        private static void PrintStudentsWithParameters(string[] students, int[] marks, int minMark)
         {
             Sort(ref students, ref marks);
 
-            if (!ValidationMark(mark))
+            if (!ValidationMark(minMark))
             {
                 throw new ValidationException();
             }
 
-            Console.WriteLine("\nStudents and marks: ");
+            Console.WriteLine("\n" + MSG_LIST_HEADER + ": ");
             bool flag = false;
 
             for (int i = 0; i < marks.Length; i++)
             {
-                if (marks[i] >= mark)
+                if (marks[i] >= minMark)
                 {
                     flag = true;
                     PrintStudent(i, students, marks);
@@ -153,7 +166,7 @@ namespace StudentsListLibrary
 
             if (flag == false)
             {
-                Console.WriteLine("No students found!");
+                Console.WriteLine(MSG_NO_FOUND_STUDENTS);
             }
         }
 
@@ -165,6 +178,7 @@ namespace StudentsListLibrary
         private static void Sort(ref string[] students, ref int[] marks)
         {
             bool flag = true;
+            IComparer myComparer = new Reverser();
 
             while (flag)
             {
@@ -182,9 +196,7 @@ namespace StudentsListLibrary
                         flag = false;
                         break;
                     case 2:
-                        Array.Sort(students, marks);
-                        Array.Reverse(students);
-                        Array.Reverse(marks);
+                        Array.Sort(students, marks, myComparer);
                         flag = false;
                         break;
                     case 3:
@@ -192,13 +204,11 @@ namespace StudentsListLibrary
                         flag = false;
                         break;
                     case 4:
-                        Array.Sort(marks, students);
-                        Array.Reverse(marks);
-                        Array.Reverse(students);
+                        Array.Sort(marks, students, myComparer);
                         flag = false;
                         break;
                     default:
-                        Console.WriteLine("\nPlease enter correct operation number!");
+                        Console.WriteLine("\n" + MSG_ERROR_CORRECT_OPERATION);
                         break;
                 }
             }
@@ -213,8 +223,9 @@ namespace StudentsListLibrary
                 int choose = GetInt("\nOperation:\n"
                                     + "1. Print students with max mark\n"
                                     + "2. Print students with min mark\n"
-                                    + "3. Print average performance students\n"
-                                    + "4. Print students with parameters\n"
+                                    + "3. Print students with mark\n"
+                                    + "4. Print average performance students\n"
+                                    + "5. Print students with parameters\n"
                                     + "0. Exit\n"
                                     + "\nEnter number operation: ");
 
@@ -225,23 +236,21 @@ namespace StudentsListLibrary
                         break;
                     case 1:
                         PrintStudentsWithMark(students, marks, MAX_MARK);
-                        flag = false;
                         break;
                     case 2:
                         PrintStudentsWithMark(students, marks, MIN_MARK);
-                        flag = false;
                         break;
                     case 3:
-                        Console.WriteLine("Average performance students: " + CalculateAveragePerformance(marks));
-                        flag = false;
+                        PrintStudentsWithMark(students, marks, GetMark("\nEnter parameter mark: "));
                         break;
                     case 4:
-                        int mark = GetMark("\nEnter parameter mark: ");
-                        PrintStudentsWithParameters(students, marks, mark);
-                        flag = false;
+                        Console.WriteLine("Average performance students: " + CalculateAveragePerformance(marks));
+                        break;
+                    case 5:
+                        PrintStudentsWithParameters(students, marks, GetMark("\nEnter parameter min mark: "));
                         break;
                     default:
-                        Console.WriteLine("\nPlease enter correct operation number!");
+                        Console.WriteLine("\n" + MSG_ERROR_CORRECT_OPERATION);
                         break;
                 }
             }
